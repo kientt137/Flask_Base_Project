@@ -40,8 +40,7 @@ class UserLoginController(Resource):
             if query_user.count() != 0:
                 user: User = query_user.first()
                 # check the password
-                hash_password = encrypt_bc(data_decrypt["password"])
-                if check_bc(user.password, hash_password):
+                if check_bc(data_decrypt["password"], user.password):
                     access_token = create_access_token(identity=user.id_user)
                     refresh_token = create_refresh_token(identity=user.id_user)
                     return {

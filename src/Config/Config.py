@@ -11,9 +11,10 @@ from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended.exceptions import NoAuthorizationError, WrongTokenError
-from flask import jsonify
+from flask import request
 from jwt import InvalidSignatureError, ExpiredSignatureError
 from src.Lib.CompressReponse import GzipCompress
+import logging
 
 # Compress(app)
 GzipCompress(app)
@@ -28,6 +29,15 @@ ma     = Marshmallow(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
+# logging
+logging.basicConfig(filename='record.log', level=logging.DEBUG,
+                    format='%(asctime)s %(module)s [%(levelname)s]: %(message)s')
+logger = app.logger
+
+@app.after_request
+def logging_after_request(response):
+    logger.info(f"{request.method} {request.full_path} {response.status}")
+    return response
 
 @api.errorhandler
 def default_error_handler(error):
