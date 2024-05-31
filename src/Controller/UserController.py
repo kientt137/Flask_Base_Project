@@ -1,6 +1,7 @@
 from flask import request, jsonify, current_app
 from flask_restx import Resource
 
+from src.Config.Types import SALT_LOGIN
 from src.Config import db
 from src.Config.Core import decrypt_aes, check_bc, encrypt_bc
 from src.Models import User
