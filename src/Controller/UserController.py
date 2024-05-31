@@ -1,4 +1,4 @@
-from flask import request, jsonify, current_app as app
+from flask import request, jsonify, current_app
 from flask_restx import Resource
 
 from src.Config import db
@@ -138,23 +138,23 @@ class UserRefreshTokenController(Resource):
 
 def validate_password(password):
     # Minimum length
-    if len(password) < app.config["PASSWORD_MINIMUM_LENGTH"]:
-        return False, f"Password must be at least {app.config['PASSWORD_MINIMUM_LENGTH']} characters long."
+    if len(password) < current_app.config["PASSWORD_MINIMUM_LENGTH"]:
+        return False, f"Password must be at least {current_app.config['PASSWORD_MINIMUM_LENGTH']} characters long."
 
     # Contains at least one lowercase letter
-    if app.config["PASSWORD_MUST_CONTAIN_LOWER_CASE"] and not re.search(r'[a-z]', password):
+    if current_app.config["PASSWORD_MUST_CONTAIN_LOWER_CASE"] and not re.search(r'[a-z]', password):
         return False, "Password must contain at least one lowercase letter."
 
     # Contains at least one uppercase letter
-    if app.config["PASSWORD_MUST_CONTAIN_UPPER_CASE"] and not re.search(r'[A-Z]', password):
+    if current_app.config["PASSWORD_MUST_CONTAIN_UPPER_CASE"] and not re.search(r'[A-Z]', password):
         return False, "Password must contain at least one uppercase letter."
 
     # Contains at least one digit
-    if app.config["PASSWORD_MUST_CONTAIN_DIGIT"] and not re.search(r'\d', password):
+    if current_app.config["PASSWORD_MUST_CONTAIN_DIGIT"] and not re.search(r'\d', password):
         return False, "Password must contain at least one digit."
 
     # Contains at least one special character
-    if app.config["PASSWORD_MUST_CONTAIN_SPECIAL_CHARACTER"] and not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+    if current_app.config["PASSWORD_MUST_CONTAIN_SPECIAL_CHARACTER"] and not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         return False, "Password must contain at least one special character."
 
     return True, "Password is valid."
