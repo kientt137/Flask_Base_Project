@@ -14,6 +14,7 @@ from flask_jwt_extended import (
 import re
 from src.Utils.Wrapper import body_validate, jwt_verify
 from src.Utils import Timer
+from sqlalchemy import or_
 
 
 class UserLoginController(Resource):
@@ -39,15 +40,15 @@ class UserLoginController(Resource):
 
         if not user:
             return {
-               "status": 400,
-               "message": "The user data didn't exist.",
+                "status": 400,
+                "message": "The user data didn't exist.",
             }, 400
 
         # check the password
         if not check_bc(data_decrypt["old_password"], user.password):
             return {
-               "status": 400,
-               "message": "The current password is wrong, check it again.",
+                "status": 400,
+                "message": "The current password is wrong, check it again.",
             }, 400
 
         # current password is correct, validate the new password
@@ -101,8 +102,8 @@ class UserLoginController(Resource):
         # check the password
         if not check_bc(data_decrypt["password"], user.password):
             return {
-               "status": 401,
-               "message": "The email or password is wrong, check it again.",
+                "status": 401,
+                "message": "The username or password is wrong, check it again.",
             }, 401
 
         # login success
@@ -111,6 +112,49 @@ class UserLoginController(Resource):
             "refresh_token": create_refresh_token(identity=user.id_user),
         }, 200
 
+
+class UserRegisterController(Resource):
+    @body_validate("data")
+    def post(self):
+        """
+        Register new user
+        :data: the body json need to encrypted are
+            {
+                username,
+                email,
+                password
+            }
+        """
+        body = request.get_json()
+        data_decrypt = decrypt_aes(body["data"], SALT_LOGIN)
+        # check username or email existed
+        user = User.query.filter(or_(User.username == data_decrypt["username"], User.email == data_decrypt["email"])).first()
+        if user:
+            return {
+                "status": 401,
+                "message": "The username or email has been registered.",
+            }, 401
+        # check password
+        is_valid, reason = validate_password(data_decrypt["password"])
+        if not is_valid:
+            return {
+                "status": 400,
+                "message": reason
+            }, 400
+
+        # information valid, create new user
+        hashpw = encrypt_bc(data_decrypt['password'])
+        data_decrypt['password'] = hashpw
+
+        new_user = User(**data_decrypt)
+        db.session.add(new_user)
+        db.session.commit()
+
+        return {
+            "status": 201,
+            "message": "User created."
+        }, 201
+        # save the new password
 
 class UserRefreshTokenController(Resource):
     @jwt_verify(refresh=True)

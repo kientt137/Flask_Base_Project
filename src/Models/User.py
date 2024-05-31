@@ -17,4 +17,4 @@ class User(db.Model):
         self.username = data["username"]
         self.email = data["email"]
         self.password = data["password"]
-        self.created_at = Timer.get_current_time()
+        self.created_at = Timer.get_current_date_time()
