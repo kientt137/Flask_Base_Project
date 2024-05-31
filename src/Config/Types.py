@@ -12,7 +12,7 @@ SALT_LOGIN = os.getenv('SALT_LOGIN')
 SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://{dbUserName}:{dbPassword}@{dbHost}/{dbName}".format(
     dbUserName=os.getenv('POSTGRES_USER'),
     dbPassword=os.getenv('POSTGRES_PASSWORD'),
-    dbHost=os.environ['DBHOST'],
+    dbHost=os.getenv('DBHOST'),
     dbName=os.getenv('POSTGRES_DB')
 )
 

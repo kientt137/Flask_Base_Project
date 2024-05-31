@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify
 from .Types import *
 from datetime import timedelta
 
@@ -14,6 +14,13 @@ app.config['CACHE_DEFAULT_TIMEOUT']          = 86400
 app.config['CACHE_REDIS_URL']                = REDIS_CACHE_URL
 app.config['SQLALCHEMY_DATABASE_URI']        = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# password validation
+app.config['PASSWORD_MINIMUM_LENGTH']                   = 8
+app.config['PASSWORD_MUST_CONTAIN_DIGIT']               = True
+app.config['PASSWORD_MUST_CONTAIN_LOWER_CASE']          = True
+app.config['PASSWORD_MUST_CONTAIN_UPPER_CASE']          = True
+app.config['PASSWORD_MUST_CONTAIN_SPECIAL_CHARACTER']   = True
 
 # 404 handling
 @app.errorhandler(404)
