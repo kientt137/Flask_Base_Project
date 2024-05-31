@@ -1,6 +1,6 @@
 FROM python:3.10-buster
 
-ENV TZ=Asia/Tokyo
+ENV TZ=UTC
 
 WORKDIR /usr/src/app
 

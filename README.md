@@ -19,7 +19,8 @@ All of services using docker and docker-compose for deploying.
 - [ ] Implement Register/Logout/Change Password/Forgot Password/MFA function
 - [ ] Implement auto migrate db when restart server
 - [ ] Session Management
-- [ ] Loging and Monitoring system
+- [x] Loging system
+- [ ] Monitoring system
 - [ ] CSRF Protection system
 - [ ] Error Handling and Response Management
 - [ ] Testing and documentation

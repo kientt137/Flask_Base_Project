@@ -9,119 +9,111 @@ from src.Schema import UserSchemaList
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
-    get_jwt_identity,
-    jwt_required,
+    get_jwt_identity
 )
 import re
-from src.Utils.Wrapper import body_validate
+from src.Utils.Wrapper import body_validate, jwt_verify
+from src.Utils import Timer
 
 
 class UserLoginController(Resource):
-    @jwt_required()
+    @jwt_verify()
     @body_validate("data")
     def patch(self):
         """
         Update user password
-        - Check current user is user want to change password
-        - Check old password is correct
-        - Check new password is different with current password
-        - Check new password is valid
-        """
-        body = request.get_json()
-        """
-            :data: the body json need to encrypted are
+        :data: the body json need to encrypted are
             {
                 password,
                 old_password
             }
         """
-        current_user_id = get_jwt_identity()
+        body = request.get_json()
         data_decrypt = decrypt_aes(body["data"], SALT_LOGIN)
-        # data_decrypt = body["data"]
+
+        # Check current user is user want to change password
+        current_user_id = get_jwt_identity()
         query_user = User.query.filter(User.id_user == current_user_id)
 
-        if query_user.count() == 0:
+        user: User = query_user.first()
+
+        if not user:
             return {
                "status": 400,
                "message": "The user data didn't exist.",
             }, 400
 
-        if query_user.count() != 0:
-            user: User = query_user.first()
-            # check the password
-            if check_bc(data_decrypt["old_password"], user.password):
-                # current password is correct, validate the new password
-                if data_decrypt["password"] == data_decrypt["old_password"]:
-                    return {
-                        "status": 400,
-                        "message": "The new password must be different from the old password.",
-                    }, 400
-                is_valid, reason = validate_password(data_decrypt["password"])
-                if not is_valid:
-                    return {
-                        "status": 400,
-                        "message": reason
-                    }, 400
-                # save the new password
-                hashpw = encrypt_bc(data_decrypt['password'])
-                # remove unused field
-                data_update = {
-                    "password": hashpw
-                }
-                query_user.update(data_update)
-                db.session.commit()
+        # check the password
+        if not check_bc(data_decrypt["old_password"], user.password):
+            return {
+               "status": 400,
+               "message": "The current password is wrong, check it again.",
+            }, 400
 
-                return {
-                    "status": 201,
-                    "message": "Update password successfully",
-                }, 201
+        # current password is correct, validate the new password
+        if data_decrypt["password"] == data_decrypt["old_password"]:
+            return {
+                "status": 400,
+                "message": "The new password must be different from the old password.",
+            }, 400
+        is_valid, reason = validate_password(data_decrypt["password"])
+        if not is_valid:
+            return {
+                "status": 400,
+                "message": reason
+            }, 400
 
-            else:
-                return {
-                    "status": 400,
-                    "message": "The current password is wrong, check it again.",
-                }, 400
+        hashpw = encrypt_bc(data_decrypt['password'])
+        # save the new password
+        data_update = {
+            "password": hashpw,
+            "pw_update_at": Timer.get_current_date_time(),
+            "update_at": Timer.get_current_date_time()
+        }
+        query_user.update(data_update)
+        db.session.commit()
+
+        return {
+            "status": 201,
+            "message": "Update password successfully",
+        }, 201
+
 
     @body_validate("data")
     def post(self):
-        body = request.get_json()
         """
-            :data: the body json need to encrypted are
+        user login
+        :data: the body json need to encrypted are
             {
                 username,
                 password
             }
         """
-
+        body = request.get_json()
         data_decrypt = decrypt_aes(body["data"], SALT_LOGIN)
-        # data_decrypt = body["data"]
-        query_user = User.query.filter(User.username == data_decrypt["username"])
-
-        if query_user.count() == 0:
+        user = User.query.filter(User.username == data_decrypt["username"]).first()
+        if not user:
             return {
                 "status": 400,
                 "message": "The user data didn't exist.",
             }, 400
 
-        if query_user.count() != 0:
-            user: User = query_user.first()
-            # check the password
-            if check_bc(data_decrypt["password"], user.password):
-                access_token = create_access_token(identity=user.id_user)
-                refresh_token = create_refresh_token(identity=user.id_user)
-                return {
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                }, 200
-            else:
-                return {
-                    "status": 401,
-                    "message": "The email or password is wrong, check it again.",
-                }, 401
+        # check the password
+        if not check_bc(data_decrypt["password"], user.password):
+            return {
+               "status": 401,
+               "message": "The email or password is wrong, check it again.",
+            }, 401
+
+        # login success
+        return {
+            "access_token": create_access_token(identity=user.id_user),
+            "refresh_token": create_refresh_token(identity=user.id_user),
+        }, 200
 
 
 class UserRefreshTokenController(Resource):
-    @jwt_required(refresh=True)
+    @jwt_verify(refresh=True)
     def post(self):
         identity = get_jwt_identity()
         access_token = create_access_token(identity=identity)
