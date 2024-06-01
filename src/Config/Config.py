@@ -35,15 +35,18 @@ logging.basicConfig(filename='record.log', level=logging.DEBUG,
                     format='%(asctime)s %(module)s [%(levelname)s]: %(message)s')
 logger = app.logger
 
+
 @app.before_request
 def before_request():
     g.start = time.time()
+
 
 @app.after_request
 def logging_after_request(response):
     execute_time = time.time() - g.start
     logger.info(f"{request.remote_addr} \"{request.method} {request.full_path}\" <{response.status}> in {execute_time:.6f} seconds")
     return response
+
 
 @api.errorhandler
 def default_error_handler(error):

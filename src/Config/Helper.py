@@ -1,6 +1,6 @@
-import os
 from datetime import datetime
 from pytz import timezone
+
 
 def get_time_zone():
     list_time = {}

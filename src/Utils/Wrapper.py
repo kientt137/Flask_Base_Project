@@ -1,5 +1,5 @@
 import functools
-from flask import request, jsonify
+from flask import request
 from flask_jwt_extended import get_jwt, verify_jwt_in_request, get_jwt_identity
 from jwt import ExpiredSignatureError
 
@@ -41,7 +41,7 @@ def jwt_verify(refresh=False):
                     "status": 400,
                     "message": "The user data didn't exist.",
                 }, 400
-            print(user.pw_update_at.timestamp(), claims['iat'], flush=True)
+
             if user.pw_update_at is not None:
                 if user.pw_update_at.timestamp() > claims['iat']:
                     # If the password was updated after the token was issued, raise an exception

@@ -1,11 +1,10 @@
-from flask import request, jsonify, current_app
+from flask import request, current_app
 from flask_restx import Resource
 
 from src.Config.Types import SALT_LOGIN
 from src.Config import db
 from src.Config.Core import decrypt_aes, check_bc, encrypt_bc
 from src.Models import User
-from src.Schema import UserSchemaList
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -40,34 +39,34 @@ class UserLoginController(Resource):
 
         if not user:
             return {
-                "status": 400,
-                "message": "The user data didn't exist.",
-            }, 400
+                       "status": 400,
+                       "message": "The user data didn't exist.",
+                   }, 400
 
         # check the password
         if not check_bc(data_decrypt["old_password"], user.password):
             return {
-                "status": 400,
-                "message": "The current password is wrong, check it again.",
-            }, 400
+                       "status": 400,
+                       "message": "The current password is wrong, check it again.",
+                   }, 400
 
         # current password is correct, validate the new password
         if data_decrypt["password"] == data_decrypt["old_password"]:
             return {
-                "status": 400,
-                "message": "The new password must be different from the old password.",
-            }, 400
+                       "status": 400,
+                       "message": "The new password must be different from the old password.",
+                   }, 400
         is_valid, reason = validate_password(data_decrypt["password"])
         if not is_valid:
             return {
-                "status": 400,
-                "message": reason
-            }, 400
+                       "status": 400,
+                       "message": reason
+                   }, 400
 
-        hashpw = encrypt_bc(data_decrypt['password'])
+        hash_pw = encrypt_bc(data_decrypt['password'])
         # save the new password
         data_update = {
-            "password": hashpw,
+            "password": hash_pw,
             "pw_update_at": Timer.get_current_date_time(),
             "update_at": Timer.get_current_date_time()
         }
@@ -75,10 +74,9 @@ class UserLoginController(Resource):
         db.session.commit()
 
         return {
-            "status": 201,
-            "message": "Update password successfully",
-        }, 201
-
+                   "status": 201,
+                   "message": "Update password successfully",
+               }, 201
 
     @body_validate("data")
     def post(self):
@@ -95,22 +93,22 @@ class UserLoginController(Resource):
         user = User.query.filter(User.username == data_decrypt["username"]).first()
         if not user:
             return {
-                "status": 400,
-                "message": "The user data didn't exist.",
-            }, 400
+                       "status": 400,
+                       "message": "The user data didn't exist.",
+                   }, 400
 
         # check the password
         if not check_bc(data_decrypt["password"], user.password):
             return {
-                "status": 401,
-                "message": "The username or password is wrong, check it again.",
-            }, 401
+                       "status": 401,
+                       "message": "The username or password is wrong, check it again.",
+                   }, 401
 
         # login success
         return {
-            "access_token": create_access_token(identity=user.id_user),
-            "refresh_token": create_refresh_token(identity=user.id_user),
-        }, 200
+                   "access_token": create_access_token(identity=user.id_user),
+                   "refresh_token": create_refresh_token(identity=user.id_user),
+               }, 200
 
 
 class UserRegisterController(Resource):
@@ -128,33 +126,34 @@ class UserRegisterController(Resource):
         body = request.get_json()
         data_decrypt = decrypt_aes(body["data"], SALT_LOGIN)
         # check username or email existed
-        user = User.query.filter(or_(User.username == data_decrypt["username"], User.email == data_decrypt["email"])).first()
+        user = User.query.filter(
+            or_(User.username == data_decrypt["username"], User.email == data_decrypt["email"])).first()
         if user:
             return {
-                "status": 401,
-                "message": "The username or email has been registered.",
-            }, 401
+                       "status": 401,
+                       "message": "The username or email has been registered.",
+                   }, 401
         # check password
         is_valid, reason = validate_password(data_decrypt["password"])
         if not is_valid:
             return {
-                "status": 400,
-                "message": reason
-            }, 400
+                       "status": 400,
+                       "message": reason
+                   }, 400
 
         # information valid, create new user
-        hashpw = encrypt_bc(data_decrypt['password'])
-        data_decrypt['password'] = hashpw
+        hash_pw = encrypt_bc(data_decrypt['password'])
+        data_decrypt['password'] = hash_pw
 
         new_user = User(**data_decrypt)
         db.session.add(new_user)
         db.session.commit()
 
         return {
-            "status": 201,
-            "message": "User created."
-        }, 201
-        # save the new password
+                   "status": 201,
+                   "message": "User created."
+               }, 201
+
 
 class UserRefreshTokenController(Resource):
     @jwt_verify(refresh=True)
@@ -182,7 +181,8 @@ def validate_password(password):
         return False, "Password must contain at least one digit."
 
     # Contains at least one special character
-    if current_app.config["PASSWORD_MUST_CONTAIN_SPECIAL_CHARACTER"] and not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+    if current_app.config["PASSWORD_MUST_CONTAIN_SPECIAL_CHARACTER"] \
+            and not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         return False, "Password must contain at least one special character."
 
     return True, "Password is valid."

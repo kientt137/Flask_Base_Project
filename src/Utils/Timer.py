@@ -1,6 +1,7 @@
-import time
 import pytz
 from datetime import datetime
+from pytz.exceptions import UnknownTimeZoneError
+
 
 def get_current_date_time(timezone_str='UTC'):
     """
@@ -13,11 +14,8 @@ def get_current_date_time(timezone_str='UTC'):
     try:
         timezone = pytz.timezone(timezone_str)
         current_time = datetime.now(timezone)
-    except Exception:
-        try:
-            current_time = datetime.now()
-        except Exception:
-            current_time = datetime.now()
+    except UnknownTimeZoneError:
+        current_time = datetime.now()
     return current_time
 
 
@@ -33,7 +31,7 @@ def get_current_date_time_str(str_format='%Y-%m-%d %H:%M:%S', timezone_str='UTC'
     try:
         timezone = pytz.timezone(timezone_str)
         current_time = datetime.now(timezone).strftime(str_format)
-    except Exception:
+    except UnknownTimeZoneError:
         try:
             current_time = datetime.now().strftime(str_format)
         except Exception:

@@ -57,7 +57,7 @@ packaging==24.0
 pillow==10.3.0
 platformdirs==4.2.1
 prompt-toolkit==3.0.43
-psycopg2==2.9.9
+psycopg2-binary==2.9.9
 pycryptodomex==3.20.0
 pyexcel==0.7.0
 pyexcel-io==0.6.6
