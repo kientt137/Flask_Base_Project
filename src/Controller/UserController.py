@@ -68,7 +68,7 @@ class UserLoginController(Resource):
         data_update = {
             "password": hash_pw,
             "pw_update_at": Timer.get_current_date_time(),
-            "update_at": Timer.get_current_date_time()
+            "updated_at": Timer.get_current_date_time()
         }
         query_user.update(data_update)
         db.session.commit()
