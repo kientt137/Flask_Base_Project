@@ -1,5 +1,5 @@
 from ..Config import db
-from ..Utils import Timer
+from ..Helper import Timer
 
 
 class User(db.Model):

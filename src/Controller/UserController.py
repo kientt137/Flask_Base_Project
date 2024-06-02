@@ -1,4 +1,4 @@
-from flask import request, current_app
+from flask import request
 from flask_restx import Resource
 
 from src.Config.Types import SALT_LOGIN
@@ -10,9 +10,9 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt_identity
 )
-import re
-from src.Utils.Wrapper import body_validate, jwt_verify
-from src.Utils import Timer
+from src.Helper.Wrapper import body_validate, jwt_verify
+from src.Helper.Validator import validate_email, validate_password
+from src.Helper import Timer
 from sqlalchemy import or_
 
 
@@ -133,6 +133,13 @@ class UserRegisterController(Resource):
                        "status": 401,
                        "message": "The username or email has been registered.",
                    }, 401
+        # check email
+        is_email_valid = validate_email(data_decrypt["email"])
+        if not is_email_valid:
+            return {
+                       "status": 400,
+                       "message": "The email is in an invalid format."
+                   }, 400
         # check password
         is_valid, reason = validate_password(data_decrypt["password"])
         if not is_valid:
