@@ -1,9 +1,8 @@
 from flask import request
 from flask_restx import Resource
 
-from src.Config.Types import SALT_LOGIN
 from src.Config import db
-from src.Config.Core import decrypt_aes, check_bc, encrypt_bc
+from src.Config.Core import check_bc, encrypt_bc
 from src.Models import User
 from flask_jwt_extended import (
     create_access_token,
@@ -168,28 +167,3 @@ class UserRefreshTokenController(Resource):
         identity = get_jwt_identity()
         access_token = create_access_token(identity=identity)
         return {"access_token": access_token}, 200
-
-
-def validate_password(password):
-    # Minimum length
-    if len(password) < current_app.config["PASSWORD_MINIMUM_LENGTH"]:
-        return False, f"Password must be at least {current_app.config['PASSWORD_MINIMUM_LENGTH']} characters long."
-
-    # Contains at least one lowercase letter
-    if current_app.config["PASSWORD_MUST_CONTAIN_LOWER_CASE"] and not re.search(r'[a-z]', password):
-        return False, "Password must contain at least one lowercase letter."
-
-    # Contains at least one uppercase letter
-    if current_app.config["PASSWORD_MUST_CONTAIN_UPPER_CASE"] and not re.search(r'[A-Z]', password):
-        return False, "Password must contain at least one uppercase letter."
-
-    # Contains at least one digit
-    if current_app.config["PASSWORD_MUST_CONTAIN_DIGIT"] and not re.search(r'\d', password):
-        return False, "Password must contain at least one digit."
-
-    # Contains at least one special character
-    if current_app.config["PASSWORD_MUST_CONTAIN_SPECIAL_CHARACTER"] \
-            and not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        return False, "Password must contain at least one special character."
-
-    return True, "Password is valid."
