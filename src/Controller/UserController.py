@@ -2,8 +2,9 @@ from flask import request
 from flask_restx import Resource
 
 from src.Config import db
-from src.Config.Core import check_bc, encrypt_bc
+from src.Config.Core import check_bc, encrypt_bc, decrypt_aes
 from src.Models import User
+from src.Config.Types import SALT_LOGIN
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
