@@ -1,8 +1,6 @@
 # Project Name  : FLASK BASE PROJECT
 # Services Name : Backend Services API
 
-version: '3'
-
 volumes:
   flask_base_service_data: {}
 
