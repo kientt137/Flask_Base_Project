@@ -5,7 +5,7 @@ from .Main import app
 from flask_restx import Api
 from flask_cors import CORS
 from flask_caching import Cache
-from flask_compress import Compress
+# from flask_compress import Compress
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
@@ -19,14 +19,14 @@ import time
 
 # Compress(app)
 GzipCompress(app)
-api    = Api(app, validate=True)
-cors   = CORS(app, resources={r"/*": {"origins": "*"}}) # for cors in flask
+api = Api(app, validate=True)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})  # for cors in flask
 caches = Cache(app)
-db     = SQLAlchemy(app)
+db = SQLAlchemy(app)
 # add migrate
 migrate = Migrate(app, db)
 # flask db init flask db migrate -m "Initial migration." flask db upgrade
-ma     = Marshmallow(app)
+ma = Marshmallow(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 

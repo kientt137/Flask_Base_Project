@@ -2,6 +2,7 @@ import gzip
 from io import BytesIO
 from flask import request
 
+
 class GzipCompress:
     # custom gzip compress
     def __init__(self, app, compress_level=9, minimum_size=100):

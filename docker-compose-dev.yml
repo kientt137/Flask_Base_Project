@@ -36,6 +36,19 @@ services:
     volumes:
       - flask_base_service_data:/var/lib/postgresql/data
 
+#  flask_base_migration:
+#    container_name: "flask_base_migration"
+#    build:
+#      context: .
+#      dockerfile: ./Dockerfile.migrate
+#    env_file: src/Config/Environment/DEV.env
+#    restart: always
+#    networks:
+#      - flask_base_service-net
+#    depends_on:
+#      - flask_base_postgres_service
+#    command: ./migration.sh
+
   flask_base_reverse_proxy_service:
     container_name: "flask_base_reverse_proxy_service"
     image: nginx:latest

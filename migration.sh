@@ -1,12 +1,8 @@
 #!/bin/sh
 
+# Kiểm tra và cấp quyền thực thi cho script
 chmod u+x migration.sh
 
-if [ "$1" == first ]; then
-  flask db init
-  flask db migrate
-  flask db upgrade
-else
-  flask db migrate
-  flask db upgrade
-fi
+flask db init
+flask db migrate
+flask db upgrade

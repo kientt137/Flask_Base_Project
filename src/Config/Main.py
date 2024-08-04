@@ -22,6 +22,7 @@ app.config['PASSWORD_MUST_CONTAIN_LOWER_CASE']          = True
 app.config['PASSWORD_MUST_CONTAIN_UPPER_CASE']          = True
 app.config['PASSWORD_MUST_CONTAIN_SPECIAL_CHARACTER']   = True
 
+
 # 404 handling
 @app.errorhandler(404)
 def page_not_found(e):
