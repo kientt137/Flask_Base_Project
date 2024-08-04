@@ -48,14 +48,21 @@ def logging_after_request(response):
     return response
 
 
-@api.errorhandler
-def default_error_handler(error):
-    status_code = getattr(error, 'status_code', 500)
-    if isinstance(error, InvalidSignatureError) or isinstance(error, WrongTokenError):
-        return {"message": "Signature verification failed.", "error": "invalid_token"}, 401
-    elif isinstance(error, NoAuthorizationError):
-        return {"message": "Request does not contain an access token.", "error": "authorization_required"}, 401
-    elif isinstance(error, ExpiredSignatureError):
-        return {"message": "The token has expired.", "error": "token_expired"}, 401
-    # else:
-    return {"message": str(error)}, status_code
+@api.errorhandler(NoAuthorizationError)
+def handler_no_auth_exception(error):
+    return {"message": "Request does not contain an access token.", "error": "authorization_required"}, 401
+
+
+@api.errorhandler(ExpiredSignatureError)
+def handler_token_expired_exception(error):
+    return {"message": "The token has expired.", "error": "token_expired"}, 401
+
+
+@api.errorhandler(InvalidSignatureError)
+def handle_invalid_token_exception(error):
+    return {"message": "Signature verification failed.", "error": "invalid_token"}, 401
+
+
+@api.errorhandler(WrongTokenError)
+def handle_wrong_token_exception(error):
+    return {"message": "Signature verification failed.", "error": "invalid_token"}, 401
