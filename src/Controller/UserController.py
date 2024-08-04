@@ -1,5 +1,5 @@
 from flask import request
-from flask_restx import Resource
+from flask_restx import Resource, Namespace, fields
 
 from src.Config import db
 from src.Config.Core import check_bc, encrypt_bc, decrypt_aes
@@ -16,9 +16,18 @@ from src.Helper import Timer
 from sqlalchemy import or_
 
 
-class UserLoginController(Resource):
+user_ns = Namespace('users', description="User operations")
+
+
+user_auth_model = user_ns.model('UserAuth', {
+    'data': fields.String(required=True, title="Encrypted auth", description="Username and password encrypted")
+})
+
+
+@user_ns.route("/update_password")
+class UserUpdatePasswordController(Resource):
     @jwt_verify()
-    @body_validate("data")
+    @user_ns.expect(user_auth_model)
     def patch(self):
         """
         Update user password
@@ -78,7 +87,10 @@ class UserLoginController(Resource):
                    "message": "Update password successfully",
                }, 201
 
-    @body_validate("data")
+
+@user_ns.route("/login")
+class UserLoginController(Resource):
+    @user_ns.expect(user_auth_model)
     def post(self):
         """
         user login
@@ -111,8 +123,9 @@ class UserLoginController(Resource):
                }, 200
 
 
+@user_ns.route("/register")
 class UserRegisterController(Resource):
-    @body_validate("data")
+    @user_ns.expect(user_auth_model)
     def post(self):
         """
         Register new user
@@ -162,6 +175,7 @@ class UserRegisterController(Resource):
                }, 201
 
 
+@user_ns.route("/refresh_token")
 class UserRefreshTokenController(Resource):
     @jwt_verify(refresh=True)
     def post(self):

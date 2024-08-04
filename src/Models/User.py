@@ -6,8 +6,8 @@ class User(db.Model):
     __tablename__ = "user"
 
     id_user = db.Column(db.BigInteger(), primary_key=True, autoincrement=True)
-    username = db.Column(db.Text())
-    email = db.Column(db.Text())
+    username = db.Column(db.Text(), unique=True, nullable=False)
+    email = db.Column(db.Text(), unique=True, nullable=False)
     password = db.Column(db.Text())
     pw_update_at = db.Column(db.DateTime())
     created_at = db.Column(db.DateTime())
