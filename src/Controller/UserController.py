@@ -112,9 +112,9 @@ class UserLoginController(Resource):
         # check the password
         if not check_bc(data_decrypt["password"], user.password):
             return {
-                       "status": 401,
+                       "status": 400,
                        "message": "The username or password is wrong, check it again.",
-                   }, 401
+                   }, 400
 
         # login success
         return {
@@ -143,9 +143,9 @@ class UserRegisterController(Resource):
             or_(User.username == data_decrypt["username"], User.email == data_decrypt["email"])).first()
         if user:
             return {
-                       "status": 401,
+                       "status": 400,
                        "message": "The username or email has been registered.",
-                   }, 401
+                   }, 400
         # check email
         is_email_valid = validate_email(data_decrypt["email"])
         if not is_email_valid:

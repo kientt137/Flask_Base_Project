@@ -19,7 +19,7 @@ import time
 
 # Compress(app)
 GzipCompress(app)
-api = Api(app, validate=True)
+api = Api(app) #, validate=True)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})  # for cors in flask
 caches = Cache(app)
 db = SQLAlchemy(app)
